@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const { dbConnection } = require('../database/config')
 
 class Server {
 
@@ -8,18 +9,26 @@ class Server {
         this.app = express()
         this.port = process.env.PORT
         this.paths = {
-            categorias:'/api/categoria'
+            categorias:'/api/categoria',
+            usuarios:'/api/usuarios'
         }
 
         this.middlewares()
 
         this.routes()
 
+        this.conectarDB()
+
+    }
+
+    async conectarDB(){
+        await dbConnection()
     }
 
     routes(){
 
         this.app.use( this.paths.categorias, require('../routes/categorias') )
+        this.app.use( this.paths.usuarios, require('../routes/usuarios') )
         this.app.get('/',(req, res)=>{
             res.send('Hello Wordl')
         })
