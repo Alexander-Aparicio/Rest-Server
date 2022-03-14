@@ -1,5 +1,4 @@
-const { response } = require('express')
-const { request } = require('express')
+const { response, request  } = require('express')
 const Role = require('../models/role')
 const Usuario = require('../models/usuario')
 
@@ -18,14 +17,27 @@ const emailValido = async (req = request, res = response)=>{
     const existeEmail = await Usuario.findOne({correo})
 
     if(existeEmail){
-        return res.status(400).json({
-            msg: 'este correo ya esta registrado'
-        })
+        // return res.status(400).json({
+        //     msg: 'este correo ya esta registrado'
+        // })
+        throw new Error(`Este correo ya está registrado`)
+    }
+
+}
+
+const idlValido = async (id)=>{
+
+    // Verificar si el correo existe
+    const existeId = await Usuario.findById(id)
+    
+    if( !existeId ){
+       throw new Error(`El ID: ${id}, no existe`)
     }
 
 }
 
 module.exports = {
     esRolValido,
-    emailValido
+    emailValido,
+    idlValido
 }

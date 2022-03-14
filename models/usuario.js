@@ -21,17 +21,23 @@ const UsuarioShema = Schema({
     rol: {
         type:String,
         required:true,
+        default:'USER_ROLE',
         emun: ['ADMIN_ROLE', 'USER_ROLE', 'VENTAS_ROLE']
     },
-    GOOGLE: {
+    google: {
         type: Boolean,
         default: false
+    },
+    estado:{
+        type:Boolean,
+        default:true
     }
 
 })
 
 UsuarioShema.methods.toJSON = function(){
-    const { __v, password, ...usuario} = this.toObject()
+    const { __v, _id, password, ...usuario} = this.toObject()
+    usuario.uid = _id
     return usuario
 }
 

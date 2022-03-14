@@ -11,6 +11,86 @@
     <header>Curso de Node</header>
 
     <h1>Curso de Node</h1>
+
+        <!-- <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-login_uri="https://your.domain/your_login_endpoint"
+         data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+      </div> -->
+
+    <div id="g_id_onload"
+      data-client_id="426083319613-l9qvsh2hgh6ni1eqmoar33se89fo89hm.apps.googleusercontent.com"
+      data-auto_prompt="false"
+      data-callback="handleCredentialResponse"
+      data-auto_select="true">
+   </div>
+   <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="filled_blue"
+      data-text="sign_in_with"
+      data-shape="pill"
+      data-logo_alignment="left">
+   </div>
+
+   <button id="salir">Salir de sesión</button>
+
+
+
+ <script>
+     function handleCredentialResponse(response) {
+
+         // Google Token
+         // console.log('id_token', response.credential)
+         console.log(response)
+
+         const body = {id_token: response.credential}
+
+         fetch('http://localhost:8080/api/auth/google',{
+             method:'POST',
+             headers:{
+                 'Content-Type':'application/json'
+             },
+             body: JSON.stringify(body)
+         })
+         .then( resp => resp.json() )
+         .then( resp => {
+             // respuesta del backend
+             console.log(resp)
+             localStorage.setItem('email', resp.usuario.correo)
+         })
+         .catch(console.warn)
+
+     }
+
+     const button = document.getElementById('salir')
+
+     button.onclick = async()=>{
+
+         console.log('se apretó salir')
+         
+         google.accounts.id.disableAutoSelect()
+
+         google.accounts.id.revoke(localStorage.getItem('email'), done =>{
+             localStorage.clear()
+             location.reload()
+             
+         })
+
+     }
+
+   </script>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
     
 </body>
 </html>
