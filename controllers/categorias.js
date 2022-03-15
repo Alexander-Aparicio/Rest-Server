@@ -1,20 +1,36 @@
 const { request } = require('express')
 const {response} = require('express')
+const { Categoria} = require('../models')
 
-const categoriGet = (req, res = response)=>{
+
+const categoriGet = async (req=request , res = response)=>{
+
+    const { limit=5, desde=0} = req.query
+    const query = {estado:true}
+
+    const [total, categorias] = await Promise.all([
+        Categoria.countDocuments(),
+        Categoria.find(query)
+            .skip(Number(desde))
+            .limit(Number(limit))
+            .populate('usuario','nombre')
+    ])
 
     res.json({
-        msj:'get API - CONTROLADOR'
+        total,
+        categorias
     })
 
 }
 
-const categoriGetId = (req = request, res= response)=>{
+const categoriGetId = async (req = request, res= response)=>{
 
     const {id} = req.params
+    
+    const categoria  = await Categoria.findById(id).populate('usuario','nombre')
 
     res.json({
-        msj:`categoria de ID = ${id}`
+        categoria
     })
 
 }
@@ -29,12 +45,33 @@ const categoriPutId = (req = request, res= response)=>{
 
 }
 
-const categoriPost = (req = request, res= response)=>{
+const categoriPost = async (req = request, res= response)=>{
 
-    res.json({
-        msj:`petición post`,
-        body: req.body
-    })
+    const nombre = req.body.nombre.toUpperCase()
+
+    const categoriaDB = await Categoria.findOne({nombre})
+
+    if(categoriaDB){
+
+        return res.status(400).json({
+
+            msj:`La categoria ${categoriaDB.nombre}, ya existe`
+        })
+    }
+
+    // Generamos la data a guardar
+    const data = {
+        nombre,
+        usuario: req.usuario._id
+    }
+
+    const categoria = new Categoria(data)
+
+    // Guardar en DB
+    await categoria.save()
+
+    // 201 cuando se crea algo
+    res.status(201).json(categoria)
 
 }
 
