@@ -35,12 +35,21 @@ const categoriGetId = async (req = request, res= response)=>{
 
 }
 
-const categoriPutId = (req = request, res= response)=>{
+const categoriPutId = async (req = request, res= response)=>{
 
     const {id} = req.params
+    const { estado, usuario, ...data } = req.body
+
+    // transformamos todo a mayúsculas
+    data.nombre = data.nombre.toUpperCase()
+    // cambiamos en id del usuario por el que esta realizando la actualización
+    data.usuario = req.usuario._id
+
+    // Actualizamos la categoria
+    const categoria = await Categoria.findByIdAndUpdate(id, data, {new:true})
 
     res.json({
-        msj:`categoria de ID = ${id} para actualizar`
+        categoria
     })
 
 }
@@ -75,12 +84,14 @@ const categoriPost = async (req = request, res= response)=>{
 
 }
 
-const categoriDelete = (req = request, res= response)=>{
+const categoriDelete = async (req = request, res= response)=>{
 
     const {id} = req.params
 
+    const categoriaBorrada = await Categoria.findByIdAndUpdate(id,{estado: false},{new:true})
+
     res.json({
-        msj:`categoria de ID = ${id} a eliminar`
+        categoriaBorrada
     })
 
 }

@@ -4,6 +4,7 @@ const { categoriGet, categoriGetId, categoriPost, categoriPutId, categoriDelete 
 const { validarCampos } = require('../middlewares/validar-campos')
 const { validarJWT } = require('../middlewares/validar-jwt')
 const { categoriaValida } = require('../helpers/validarCategoria')
+const { validarRol } = require('../middlewares/validarRoll')
 
 const router = Router()
 
@@ -21,8 +22,20 @@ router.post('/', [
     validarCampos
 ] , categoriPost)
 
-router.put('/:id', categoriPutId)
+router.put('/:id', [
+    validarJWT,
+    check('nombre','El nombre es obligatorio').not().isEmpty(),
+    check('id','No es un id de Mongo válido').isMongoId(),
+    check('id').custom(categoriaValida),
+    validarCampos
+],categoriPutId)
 
-router.delete('/:id', categoriDelete)
+router.delete('/:id',[
+    validarJWT,
+    check('id','No es un id de Mongo válido').isMongoId(),
+    check('id').custom(categoriaValida),
+    validarRol,
+    validarCampos
+] ,categoriDelete)
 
 module.exports = router
