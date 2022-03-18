@@ -4,35 +4,32 @@ const { Producto, Categoria } = require("../models");
 
 const getProdutos = async (req = request, res= response)=>{
 
-    // const { limit=5, desde=0 }= req.query
+    const { limit=5, desde=0 }= req.query
 
-    // const query = {estado:true}
+    const query = {estado:true}
 
-    console.log(Producto)
-
-    // const [total, productos] = await Promise.all([
-    //     Producto.countDocuments(),
-    //     Producto.find(query)
-    //         .skip(Number(desde))
-    //         .limit(Number(limit))
-    //         .populate('categoria','nombre') 
-    // ])
+    const [total, productos] = await Promise.all([
+        Producto.countDocuments(),
+        Producto.find(query)
+            .skip(Number(desde))
+            .limit(Number(limit))
+            .populate('categoria','nombre') 
+    ])
 
     res.json({
-        // total,
-        // productos
-        msj:'HOLA'
+        total,
+        productos
     })
-
 }
 
 const getProductoId = async ( req=request, res=response)=>{
 
     const {id}= req.params
 
-    res.json({
-        msj:`Aquí estaraá el producto con id = ${id}`
-    })
+
+    const producto = await Producto.findById(id)
+
+    res.json(producto)
 
 }
 
@@ -45,8 +42,7 @@ const postProducto = async (req=request, res= response)=>{
 
     const productoN = await Producto.findOne({nombre})
     const existeCategoria = await Categoria.findOne({nombre:categoria})
-    const nombreCategoria  = await Categoria.find({nombre:categoria})
-    console.log( `VERIFICANDO: ${existeCategoria}`)
+    
 
     if(productoN){
 
@@ -55,7 +51,6 @@ const postProducto = async (req=request, res= response)=>{
             msj:`El producto de nombre ${productoN.nombre} ya esta creado`
 
         })
-
     }
 
     if(!existeCategoria){
@@ -65,7 +60,6 @@ const postProducto = async (req=request, res= response)=>{
             msj:`La categoría de nombre ${categoria} no existe`
 
         })
-
     }
 
     // Generamos la data del producto a crear
@@ -100,10 +94,15 @@ const postProducto = async (req=request, res= response)=>{
 const putProducto = async (req=request,res= response)=>{
 
     const {id} = req.params
+    const { estado, usuario, ...data } = req.body
 
-    res.json({
-        msj: `Actualizando producto con id= ${id}`
-    })
+    data.nombre = data.nombre.toUpperCase()
+    data.usuario = req.usuario._id
+
+    const productoActualizado = await Producto.findByIdAndUpdate(id,data,{new: true})
+
+
+    res.json(productoActualizado)
 
 }
 
@@ -111,10 +110,15 @@ const deleteProducto = async (req=request, res= response)=>{
 
     const {id} = req.params
 
-    res.json({
-        msj: `Eliminando producto con id = ${id}`
-    })
+    const productoverificado = await Producto.findOne({id,estado:false})
 
+    if(productoverificado){
+        return res.status(401).json({msj:'El producto ya está eliminado'})
+    }
+
+    const productoEliminado = await Producto.findByIdAndUpdate(id,{estado:false},{new:true})
+
+    res.json({productoEliminado:productoEliminado})
 }
 
 module.exports = {
