@@ -12,7 +12,8 @@ class Server {
             categorias:'/api/categorias',
             usuarios:'/api/usuarios',
             auth:'/api/auth',
-            productos:'/api/productos'
+            productos:'/api/productos',
+            buscar:'/api/buscar'
         }
 
         this.middlewares()
@@ -33,6 +34,7 @@ class Server {
         this.app.use( this.paths.usuarios, require('../routes/usuarios') )
         this.app.use( this.paths.auth, require('../routes/auth') )
         this.app.use( this.paths.productos, require('../routes/productos') )
+        this.app.use( this.paths.buscar, require('../routes/buscar') )
         this.app.get('/',(req, res)=>{
             res.send('Hello Wordl')
         })

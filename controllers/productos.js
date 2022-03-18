@@ -1,4 +1,5 @@
 const { response, request } = require("express");
+const { categoriaValida } = require("../helpers/validarCategoria");
 const { Producto, Categoria } = require("../models");
 
 
@@ -13,7 +14,8 @@ const getProdutos = async (req = request, res= response)=>{
         Producto.find(query)
             .skip(Number(desde))
             .limit(Number(limit))
-            .populate('categoria','nombre') 
+            .populate('categoria','nombre')
+            .populate('usuario','nombre')
     ])
 
     res.json({
@@ -27,7 +29,7 @@ const getProductoId = async ( req=request, res=response)=>{
     const {id}= req.params
 
 
-    const producto = await Producto.findById(id)
+    const producto = await Producto.findById(id).populate('usuario','nombre').populate('categoria','nombre')
 
     res.json(producto)
 
@@ -96,11 +98,23 @@ const putProducto = async (req=request,res= response)=>{
     const {id} = req.params
     const { estado, usuario, ...data } = req.body
 
-    data.nombre = data.nombre.toUpperCase()
+    if(data.nombre){data.nombre = data.nombre.toUpperCase()}
+    if(data.categoria){
+        data.categoria = data.categoria.toUpperCase()
+        const verificandoCategoria = await Categoria.findOne({nombre:data.categoria})
+
+        if(!verificandoCategoria){
+            return res.json({
+                msj: `No existe la Categoria ${data.categoria}, debes crear la categoria antes`
+            })
+        }else{
+            data.categoria = verificandoCategoria._id
+        }
+    }
+
+
     data.usuario = req.usuario._id
-
     const productoActualizado = await Producto.findByIdAndUpdate(id,data,{new: true})
-
 
     res.json(productoActualizado)
 
