@@ -1,10 +1,10 @@
 const { request, response } = require("express");
-const { Usuario } = require("../models");
+const { Usuario, Categoria, Producto } = require("../models");
 const { ObjectId } =require('mongoose').Types
 
 const coleccionesPermitidas = [
     'usuarios',
-    'categoria',
+    'categorias',
     'productos',
     'roles'
 ]
@@ -19,6 +19,60 @@ const buscarUsusarios = async (termino='', res= response) =>{
             results: (usuario) ? [usuario] :[]
         })
     }
+
+    const regex = new RegExp(termino, 'i')
+
+    const usuario = await Usuario.find({
+        $or:[{nombre:regex},{correo:regex}],
+        $and: [{estado:true}]
+    })
+
+    res.json({
+        results:usuario
+    })
+
+}
+
+const buscarCategoria = async( termino='', res=response)=>{
+        
+    const esMongoID = ObjectId.isValid(termino)
+
+    if(esMongoID){
+
+        const categoria = await Categoria.find(termino)
+
+        return res.json({
+            results: (categoria) ? [categoria] :[]
+        })
+
+    }
+
+    const regex = new RegExp(termino,'i')
+
+    const categoria = await Categoria.find({nombre:regex, estado:true})
+
+    res.json({results:categoria})
+
+}
+
+const buscarProducto = async (termino, res=response)=>{
+
+    const esMongoID = ObjectId.isValid(termino)
+
+    if(esMongoID){
+
+        const producto = await Producto.find(esMongoID).populate('categoria','nombre')
+
+        return res.json({
+            results: (producto) ? [producto] :[]
+        })
+    }
+
+    const regex = new RegExp(termino,'i')
+
+    const producto = await Producto.find({nombre:regex, estado:true}).populate('categoria','nombre')
+
+    res.json(producto)
 
 }
 
@@ -36,9 +90,11 @@ const buscador = async (req=request, res=response)=>{
         case 'usuarios':
             buscarUsusarios(termino,res)
         break;
-        case 'categoria':
+        case 'categorias':
+            buscarCategoria(termino,res)
         break;
-        case 'producto':
+        case 'productos':
+            buscarProducto(termino,res)
         break;
         default:
             res.status(500).json({
