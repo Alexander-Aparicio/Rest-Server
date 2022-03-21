@@ -1,0 +1,38 @@
+Partes de un proyecto:
+
+1) Archivo app.js o index.js 
+2) Folder de controladores (controllers)
+3) Folder de base de datos
+4) Folder de funciones de ayuda (helpers)
+5) Folder de Funcionalidades como validaciones (middlewares) 
+6) Folder de modelos de estructura (models)
+7) Folder de documentos públicos (public)
+8) Folder de las rutas (routes)
+9) Folder de las dependecias (node_modules)
+10) Archivo .gitignore
+11) Archivo package.json
+12) Archivo para los tokens (.env)
+
+Paso n°1:
+Creo una carpeta models en ella creo un archivo js llamado server donde creo una 
+clase con las propiedades y métodos que tendrá mi server, en el constructor configuro 
+las propiedades que necesitare para usar variables de entorno, ejecutar express, métodos
+como las rutas, middlewares y el listen (definir el puerto).
+
+Paso n°2:
+Creo el archivo app.js donde lo primero que hacemos es llamar a la librería "dotenv"
+y ejecutar su configuración (require('dotenv').config()), luego creamos una variable 
+que contenga la Class Server creada en la carpeta models (const Server = require('./models/server'))
+Ahora solo creamos una instancia de la clase server y aplicamos su método listen.
+
+Paso n° 3:
+Creo la carpeta de rutas donde creo el archivo js routes donde desestructuro la función
+o método Router de la librería express. Creo una variable al cual le doy el valor de la 
+ejecución del método Router y uso esa variable para ejecutar los métodos de las peticiones
+get, put, post , delete y otros.
+
+Paso n° 4:
+Creo la carpeta de controladores para las peticiones de la rutas, creamos un primer archivo 
+para una de ruta  al cual podemos llamar con el mismo nombre del archivo de ruta creada
+en la carpeta rutas. En este archivo creado creamos funciones que se aplicarán cuando se haga la 
+petición.

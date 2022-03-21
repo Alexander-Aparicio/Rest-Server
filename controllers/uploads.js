@@ -1,47 +1,36 @@
-const { response } = require("express");
-const { request } = require("express");
-const { v4: uuidv4 } = require('uuid');
+const { request, response } = require("express");
+const { subirArchivo } = require("../helpers/subir-archivo");
 
-
-const cargarArchivo = (req=request, res=response)=>{
+const cargarArchivo = async(req=request, res=response)=>{
 
     if(!req.files || Object.keys(req.files).length === 0 || !req.files.archivo){
         res.status(400).send('No hay archivo cargado')
         return 
     }
 
-    const {archivo}=req.files
-    const partesDeNombre = archivo.name.split('.')
-    const extension = partesDeNombre[partesDeNombre.length-1]
+    try {
 
-    // Validación de la extensión
-    const extensionesValidas = ['png','jpg','gif','jpeg']
+        const nombreArchivo = await subirArchivo(req.files,['txt','md'],'new documents')
+        res.json({nombreArchivo})
+        
+    } catch (msg) {
 
-    if(!extensionesValidas.includes(extension)){
-        return res.status(400).json({
-            msg:`La extensión ${extension} no es valida, solo se acepta los siguiente formatos ${extensionesValidas}`
-        })
+        res.status(400).json({msg})
     }
+}
 
+const mostrarImagen = async (req, res= response)=>{
 
-    const nombreTemp = uuidv4()+'.'+extension
+    const {id, coleccion} = req.params
 
-
-    const uploadPath = `${__dirname}/../uploads/${nombreTemp}`
-
-    archivo.mv(uploadPath, function(err){
-
-        if(err){
-            return res.status(500).json({err})
-        }
-
-        res.json({msg: uploadPath})
+    res.json({
+        id,
+        coleccion
     })
-
-    console.log('documento', req.files)
 
 }
 
 module.exports = {
-    cargarArchivo
+    cargarArchivo,
+    mostrarImagen
 }
