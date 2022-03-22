@@ -1,3 +1,4 @@
+const res = require('express/lib/response');
 const { v4: uuidv4 } = require('uuid');
 
 const subirArchivo = (files, extensionesValidas =['png','jpg','gif','jpeg'], carpeta='')=>{
@@ -15,7 +16,6 @@ const subirArchivo = (files, extensionesValidas =['png','jpg','gif','jpeg'], car
     
         }
     
-    
         const nombreTemp = uuidv4()+'.'+extension
     
     
@@ -31,7 +31,6 @@ const subirArchivo = (files, extensionesValidas =['png','jpg','gif','jpeg'], car
         })
 
     } )
-
 }
 
 module.exports = {
